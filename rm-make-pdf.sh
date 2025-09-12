@@ -150,10 +150,10 @@ do
             ;;
         s)  SIZE="$OPTARG"
             ;;
-    m)  SPACE="$OPTARG"
-        ;;
-    j)  JUSTIFY="$OPTARG"
-        ;;
+        m)  SPACE="$OPTARG"
+            ;;
+        j)  JUSTIFY="$OPTARG"
+            ;;
         p)  H1_NO_SPLIT=false
             ;;
         *)  usage "ERROR: unknown option '-$OPTARG'"
