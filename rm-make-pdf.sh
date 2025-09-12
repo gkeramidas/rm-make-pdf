@@ -90,19 +90,22 @@ $0 [options] INFILE [OUTFILE]
 Use Calibre's 'ebook-convert' to convert an input file to a PDF, using
 settings that I think look good on a reMarkable 2 tablet.
 
--t ___  Specify the title in the PDF's metadata.
-
 -a ___  Specify the author in the PDF's metadata.
 
--s ___  Specify the document's base font size. Default is 13.
+-j ___  Change justification to 'left', or 'justify'. Default: 'justify'.
 
 -m ___  Specify the minimum line-height percentage (default: 160).
         To achieve "double spaced" text, set to 240.
 
--j ___  Change justification to 'left', or 'justify'. Default: 'justify'.
-
 -p      For input documents which have "H1" section headers (HTML, Markdown,
         etc.) start a new page for each H1 section.
+
+-s ___  Specify the document's base font size. Default is 13.
+
+-t ___  Specify the title in the PDF's metadata.
+
+-x      Enable tracing of the bash commands run by the script.
+        Default: off.
 
 If the input file has metadata, the '-t' and '-a' options will override the
 values from the input file.
@@ -134,7 +137,7 @@ SPACE=160
 JUSTIFY='justify'
 H1_NO_SPLIT=true
 
-while getopts 'j:hxt:a:s:m:p' OPT
+while getopts 'a:hj:m:ps:t:x' OPT
 do
     case $OPT in
         h)  usage
