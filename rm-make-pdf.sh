@@ -63,15 +63,41 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-# Possible locations for the 'ebook-convert' executable. The first of these
-# which exists will be used.
+#
+# err exitval message
+#
+# Display message to stderr and log to the syslog, and exit with exitval.
+#
+err()
+{
+    exitval=$1
+    shift
 
-EBC_MAYBE="
-/Applications/calibre.app/Contents/MacOS/ebook-convert
-/opt/calibre/ebook-convert
-/usr/local/bin/ebook-convert
-/usr/bin/ebook-convert
-"
+    echo 1>&2 "$0: ERROR: $*"
+    exit $exitval
+}
+
+#
+# locate_ebook_convert
+#
+# Locate the binary of 'book-convert', by checking a number of paths which
+# make sense on macOS, Linux, BSD, etc.
+#
+
+function locate_ebook_convert {
+    EBC_LOCATIONS=()
+    EBC_LOCATIONS+=('/Applications/calibre.app/Contents/MacOS/ebook-convert')
+    EBC_LOCATIONS+=('/opt/calibre/ebook-convert')
+    EBC_LOCATIONS+=('/usr/local/bin/ebook-convert')
+    EBC_LOCATIONS+=('/usr/bin/ebook-convert')
+
+    for _exe in "${EBC_LOCATIONS[@]}"; do
+        if [ -x "${_exe}" ]; then
+            echo "${_exe}"
+            return 0
+        fi
+    done
+}
 
 #
 # usage
@@ -172,24 +198,6 @@ then
     usage "ERROR: output filename must end with '.pdf'"
 fi
 
-#
-# Find the 'ebook-convert' executable
-#
-
-for X in $EBC_MAYBE
-do
-    if [[ -x "$X" ]]
-    then
-        EBOOK_CONVERT="$X"
-        continue
-    fi
-done
-
-if [[ -z "$EBOOK_CONVERT" ]]
-then
-    echo "ERROR: unable to locate 'ebook-convert' executable, cannot continue"
-    exit 1
-fi
 
 #
 # Build a string containing options which may or may not need to be included
@@ -236,6 +244,13 @@ _font_map_option="$(
     expand                      | \
     sed -e 's/^ *//' -e 's/ *$//' -e 's/  */, /g'
 )"
+
+# Find the 'ebook-convert' executable.  This is the last point where we
+# can defer this, since we have to run it very soon.
+EBOOK_CONVERT=$( locate_ebook_convert )
+if [ -z "${EBOOK_CONVERT}" ]; then
+    err 69 "Could not locate 'ebook-convert' binary."
+fi
 
 #
 # Run the actual ebook conversion process.
