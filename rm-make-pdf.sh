@@ -131,53 +131,82 @@ function locate_ebook_convert {
 
 #
 # usage
+#       Print a basic usage message, and explain how to run this script, how
+#       to print detailed help, and exit. This is the minimal usage message we
+#       print when the script is run without any arguments.
+#
+#       Optionally append a custom error message to the help summary.
 #
 
 function usage {
-    MSG="${1:-}"
-
+    local _message="$*"
+    local _script="$(basename "$0")"
+    
     cat <<EOF
-$0 [options] INFILE [OUTFILE]
+${_script} [options] INFILE [OUTFILE]
 
 Use Calibre's 'ebook-convert' to convert an input file to a PDF, using
 settings that I think look good on a reMarkable Paper Pro tablet.
 
--a ___  Specify the author in the PDF's metadata.
+(Use '${_script} -h' for a detailed list of all options.)
+EOF
+    if [ -n "${_message}" ]; then
+        err 72 "${_message}"            # EX_USAGE (72)
+    fi
+    exit 0
+}
 
--j ___  Change justification to 'left', or 'justify'. Default: 'justify'.
+#
+# help
+#       Print a detailed help message, with all CLI options, their acceptable
+#       arguments, default values, etc.  This is what -h option triggers.
+#
+function help {
+    local _script="$(basename "$0")"
 
--m ___  Specify the minimum line-height percentage (default: 160).
-        To achieve "double spaced" text, set to 240.
+    cat <<EOF
+${_script} [options] INFILE [OUTFILE]
 
--p      For input documents which have "H1" section headers (HTML, Markdown,
-        etc.) start a new page for each H1 section.
+Use Calibre's 'ebook-convert' to convert an input file to a PDF, using
+settings that I think look good on a reMarkable Paper Pro tablet.
 
--s ___  Specify the document's base font size. Default is 13.
+-a AUTHOR   Specify the author in the metadata of the output PDF.
 
--t ___  Specify the title in the PDF's metadata.
+-j JUSTIFY  Change justification of lines of text in the PDF.
+            Can be set to one of: 'original', 'left', or 'justify'.
+            Default: 'justify'
 
--x      Enable tracing of the bash commands run by the script.
-        Default: off.
+-m NUM      Specify the minimum line-height as a percentage of the default
+            line height. To achieve "double spaced" text, try setting this
+            to 240. Default: 160
 
-If the input file has metadata, the '-t' and '-a' options will override the
-values from the input file.
+-p          For input documents which have "H1" section headers (e.g.
+            HTML, Markdown, etc.) start a new page for each H1 section.
 
-If OUTFILE is specified, it must end with '.pdf'.
+-s SIZE     Specify the document's base font size. Default: 20
+
+-t TITLE    Specify the title in the metadata of the output PDF.
+
+-x          Enable tracing of the bash commands run by the script.
+            Default: off.
+
+Note:
+
+  * If the input file has metadata, the '-t' and '-a' options will
+    override the values from the input file.
+
+  * If OUTFILE is specified, it must end with '.pdf'.
 
 EOF
-
-    if [[ -n "$MSG" ]]
-    then
-        echo "$MSG"
-        exit 1
-    fi
-
     exit 0
 }
 
 #
 # Process the command line
 #
+if [ $# -eq 0 ]; then
+    usage
+fi
 
 SET_X=false
 TITLE=''
@@ -190,23 +219,33 @@ H1_NO_SPLIT=true
 while getopts 'a:hj:m:ps:t:x' OPT
 do
     case $OPT in
-        h)  usage
+        h)
+            help
             ;;
-        x)  SET_X=true
+        x)
+            SET_X=true
             ;;
-        t)  TITLE="$OPTARG"
+        t)
+            TITLE="$OPTARG"
             ;;
-        a)  AUTHOR="$OPTARG"
+        a)
+            AUTHOR="$OPTARG"
             ;;
-        s)  SIZE="$OPTARG"
+        s)
+            SIZE="$OPTARG"
             ;;
-        m)  SPACE="$OPTARG"
+        m)
+            SPACE="$OPTARG"
             ;;
-        j)  JUSTIFY="$OPTARG"
+        j)
+            JUSTIFY="$OPTARG"
             ;;
-        p)  H1_NO_SPLIT=false
+        p)
+            H1_NO_SPLIT=false
             ;;
-        *)  usage "ERROR: unknown option '-$OPTARG'"
+        \?)
+            echo ''
+            usage
             ;;
     esac
 done
@@ -225,7 +264,7 @@ fi
 OUTFILE="${2:-.pdf}"
 if [[ ! "$OUTFILE" =~ \.pdf$ ]]
 then
-    usage "ERROR: output filename must end with '.pdf'"
+    usage "output filename must end with '.pdf'"
 fi
 
 
