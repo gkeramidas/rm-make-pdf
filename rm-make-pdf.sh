@@ -5,27 +5,27 @@
 # Giorgos Keramidas <gkeramidas@gmail.com> 2025-09-07
 #
 # 2025-04-19 gkeramidas - enable ligatures, typographically 'prettier'
-#	characters, and auto-hyphenation.
+#   characters, and auto-hyphenation.
 #
 # 2025-06-12 gkeramidas - switch to 'Source (Sans|Serif|Code) Pro'
-#	fonts, which look nice and readable, but not as heavy-weight as
-#	Bookerly or Literata.
+#   fonts, which look nice and readable, but not as heavy-weight as
+#   Bookerly or Literata.
 #
 # 2025-04-19 gkeramidas - bump base font size to 20, and scale page by
-#	2x in every devicepixel dimension, to allow 'smoother' font size
-#	changes, because with actual 1x1 pixel size, 11pt looks too
-#	small, 12pt is too large, and ebook-convert unfortunately
-#	doesn't like float args for base font size.
+#   2x in every devicepixel dimension, to allow 'smoother' font size
+#   changes, because with actual 1x1 pixel size, 11pt looks too
+#   small, 12pt is too large, and ebook-convert unfortunately
+#   doesn't like float args for base font size.
 #
 # 2025-03-07 gkeramidas - add support for dynamically scaling all sizes
-#	of --font-size-mapping, based on -s argument, so that 'x-small'
-#	and similar CSS font-size options DTRT, when the base font size
-#	changes from 12pt.
+#   of --font-size-mapping, based on -s argument, so that 'x-small'
+#   and similar CSS font-size options DTRT, when the base font size
+#   changes from 12pt.
 #
 # John Simpson <jms1@jms1.net> 2023-08-13
 #
 # Use Calibre's "ebook-convert" to convert an input file to a PDF, using
-# settings that I think look good on a reMarkable 2 tablet.
+# settings that I think look good on a reMarkable Paper Pro tablet.
 #
 # Requirements:
 # - OS: macOS or Linux. This *might* also work on windows, if you install
@@ -40,10 +40,8 @@
 #
 # 2023-09-10 jms1 - show usage message if no input filename
 #
-###############################################################################
-#
-# The MIT License (MIT)
-#
+
+# Copyright (C) 2025 Giorgos Keramidas
 # Copyright (C) 2023 John Simpson
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -64,9 +62,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-###############################################################################
 
-########################################
 # Possible locations for the 'ebook-convert' executable. The first of these
 # which exists will be used.
 
@@ -77,9 +73,9 @@ EBC_MAYBE="
 /usr/bin/ebook-convert
 "
 
-###############################################################################
 #
 # usage
+#
 
 function usage {
     MSG="${1:-}"
@@ -88,7 +84,7 @@ function usage {
 $0 [options] INFILE [OUTFILE]
 
 Use Calibre's 'ebook-convert' to convert an input file to a PDF, using
-settings that I think look good on a reMarkable 2 tablet.
+settings that I think look good on a reMarkable Paper Pro tablet.
 
 -a ___  Specify the author in the PDF's metadata.
 
@@ -123,11 +119,9 @@ EOF
     exit 0
 }
 
-###############################################################################
-###############################################################################
-###############################################################################
 #
 # Process the command line
+#
 
 SET_X=false
 TITLE=''
@@ -162,8 +156,9 @@ do
 done
 shift $((OPTIND-1))
 
-########################################
-# Get the input filename
+#
+# Get the input and output filenames.
+#
 
 INFILE="${1:-}"
 if [[ -z "$INFILE" ]]
@@ -177,8 +172,9 @@ then
     usage "ERROR: output filename must end with '.pdf'"
 fi
 
-########################################
+#
 # Find the 'ebook-convert' executable
+#
 
 for X in $EBC_MAYBE
 do
@@ -195,10 +191,11 @@ then
     exit 1
 fi
 
-########################################
+#
 # Build a string containing options which may or may not need to be included
 # in the final 'ebook-convert' command line.
-
+#
+#
 # Array of options
 OPTA=()
 
@@ -220,12 +217,12 @@ then
     OPTA+=( '--chapter' '/' )
 fi
 
-###############################################################################
-# Compute afont-size mapping list.  This is computed by figuring out the ratio
-# of the currently specified $SIZE to '20' pt (default size), and then scaling
-# all other sizes of the default font-size mapping by the same ratio, but also
-# rounding any fractional sizes to 2 decimal places with bc(1).
-###############################################################################
+#
+# Compute a font-size mapping list.  This is computed by figuring out the
+# ratio of the currently specified $SIZE to '20' pt (default size), and then
+# scaling all other sizes of the default font-size mapping by the same ratio,
+# but also rounding any fractional sizes to 2 decimal places with bc(1).
+#
 
 _ratio="$( echo "r($SIZE / 20, 2)" | bc -l )"
 echo "Font scaling ratio: $_ratio"
@@ -235,17 +232,17 @@ for _map in '8.40' '11.60' '15.00' '20.00' '22.50' '28.40' '33.50' '36.80' '40.0
     _font_map="${_font_map} ${_scaled}"
 done
 _font_map_option="$(
-    echo "${_font_map}"					| \
-    expand						| \
+    echo "${_font_map}"                     | \
+    expand                      | \
     sed -e 's/^ *//' -e 's/ *$//' -e 's/  */, /g'
 )"
 
-###############################################################################
 #
-# Do the deed
+# Run the actual ebook conversion process.
 #
 # 'ebook-convert' command line option reference:
-#   https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+# https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+#
 
 if $SET_X
 then
