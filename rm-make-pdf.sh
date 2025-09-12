@@ -64,6 +64,36 @@
 #
 
 #
+# checkyesno var
+#       Test $1 variable, and warn if not set to YES or NO.
+#       Return 0 if it's "yes" (et al), nonzero otherwise.
+#
+checkyesno()
+{
+    eval _value=\$${1}
+    debug "checkyesno: $1 is set to $_value."
+    case $_value in
+
+    #   "yes", "true", "on", or "1"
+    [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1)
+        return 0
+        ;;
+
+    #   "no", "false", "off", or "0"
+    [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0)
+        return 1
+        ;;
+
+    *)
+        warn "\$${1} is not set properly - see rc.conf(5)."
+        return 1
+        ;;
+
+    esac
+}
+
+
+#
 # err exitval message
 #
 # Display message to stderr and log to the syslog, and exit with exitval.
@@ -219,8 +249,7 @@ then
     OPTA+=( "$AUTHOR" )
 fi
 
-if $H1_NO_SPLIT
-then
+if checkyesno H1_NO_SPLIT ; then
     OPTA+=( '--page-breaks-before' '/' )
     OPTA+=( '--chapter' '/' )
 fi
@@ -259,8 +288,7 @@ fi
 # https://manual.calibre-ebook.com/generated/en/ebook-convert.html
 #
 
-if $SET_X
-then
+if checkyesno SET_X ; then
     set -x
 fi
 
