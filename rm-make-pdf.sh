@@ -134,7 +134,7 @@ SPACE=160
 JUSTIFY='justify'
 H1_NO_SPLIT=true
 
-while getopts ':hxt:a:s:m:p' OPT
+while getopts 'j:hxt:a:s:m:p' OPT
 do
     case $OPT in
         h)  usage
