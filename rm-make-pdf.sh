@@ -351,8 +351,8 @@ fi
     --pdf-mono-font-size            $SIZE                                \
     --pdf-page-margin-left          96                                   \
     --pdf-page-margin-right         96                                   \
-    --pdf-page-margin-top           112                                  \
-    --pdf-page-margin-bottom        104                                  \
+    --pdf-page-margin-top           110                                  \
+    --pdf-page-margin-bottom        80                                   \
                                                                          \
     --minimum-line-height           $SPACE                               \
     --change-justification          $JUSTIFY                             \
