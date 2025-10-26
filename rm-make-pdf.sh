@@ -71,7 +71,6 @@
 checkyesno()
 {
     eval _value=\$${1}
-    debug "checkyesno: $1 is set to $_value."
     case $_value in
 
     #   "yes", "true", "on", or "1"
